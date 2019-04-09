@@ -13,7 +13,9 @@ modesString = '''
 
 MOST_POPULAR: Counts how the total reacts each person in a group chat has received.
 
-COUNT: Counts how many messages occur in a given timeframe.
+COUNT: Counts how many messages occur in a given timeframe. (work in progress)
+
+MOST_GIVING: Counts who GIVES OUT the most reacts.
 
 '''
 
@@ -64,6 +66,8 @@ class MessengerParse:
             return self.countInTimeFrame(1549972846000, 1550059246000)
         elif self.mode == "MOST_POPULAR":
             return self.countMostPopularPerson()
+        elif self.mode == "MOST_GIVING":
+            return self.countMostGiving()
         # ...more...
         else:
             return "Please supply a mode!"
@@ -119,7 +123,43 @@ class MessengerParse:
 
         return sorted(popularityDict.items(), key=lambda x: x[1]['count'], reverse=True)
 
-     ## =================================================== ##
+        # Counts people who have GIVEN the most reacts out to other people.
+        # Returns dictionary with the "most giving" at the top
+        def countMostGiving(self):
+            # Gen a dictionary with participants name
+            givingDict = {}
+            for person in self.participants:
+                givingDict[person] = {
+                    "count": 0, "thumbsDown": 0, "heartEyes": 0, "cry": 0,
+                    "laugh": 0, "wow": 0, "thumbsUp": 0, "angry": 0
+                }
+
+               # Go though every message, and simply count the reacts on the message.
+            for m in self.msgs:
+                if 'reactions' in m:
+                    for r in m['reactions']:
+                        actor = r['actor']
+                       # Count this react regardless of its type.
+                        givingDict[actor]['count'] = givingDict[actor]['count'] + 1
+                        # Check different kinds of reacts
+                        if r['reaction'] == "\u00f0\u009f\u0091\u008e":  # Thumbs Down
+                            givingDict[actor]['thumbsDown'] = givingDict[actor]['thumbsDown'] + 1
+                        if r['reaction'] == "\u00f0\u009f\u0098\u008d":  # Heart Eyes
+                            givingDict[actor]['heartEyes'] = givingDict[actor]['heartEyes'] + 1
+                        if r['reaction'] == "\u00f0\u009f\u0098\u0086":  # Laugh React
+                            givingDict[actor]['laugh'] = givingDict[actor]['laugh'] + 1
+                        if r['reaction'] == "\u00f0\u009f\u0098\u00ae":  # Wow React
+                            givingDict[actor]['wow'] = givingDict[actor]['wow'] + 1
+                        if r['reaction'] == "\u00f0\u009f\u0091\u008d":  # Thumbs up
+                            givingDict[actor]['thumbsUp'] = givingDict[actor]['thumbsUp'] + 1
+                        if r['reaction'] == "\u00f0\u009f\u0098\u00a0":  # Angry React
+                            givingDict[actor]['angry'] = givingDict[actor]['angry'] + 1
+                        if r['reaction'] == "\u00f0\u009f\u0098\u00a2":  # Cry React
+                            givingDict[actor]['cry'] = givingDict[actor]['cry'] + 1
+
+            return sorted(givingDict.items(), key=lambda x: x[1]['count'], reverse=True)
+
+        ## =================================================== ##
 
 
 if __name__ == '__main__':
