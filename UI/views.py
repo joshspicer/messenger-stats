@@ -5,11 +5,13 @@ from django.urls import reverse
 from django.views import generic
 from django.views.generic.edit import FormView
 from django.views.generic import TemplateView, View
+from django.template import loader
+
 
 # Create your views here.
 
 
-class IndexView(generic.FormView):
+class IndexView(generic.View):
     template_name = 'UI/index.html'
 
     def get(self, request):
